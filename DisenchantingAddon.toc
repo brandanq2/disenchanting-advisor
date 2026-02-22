@@ -1,8 +1,10 @@
 ## Interface: 120001
 ## Title: Disenchanting Advisor
 ## Notes: Extends item tooltips with expected disenchant materials and their Auction House values.
-## Author:
+## Author: Voked
 ## Version: 1.0.0
+## X-Curse-Project-ID: 1469482
+## X-Website: https://github.com/brandanq2/disenchanting-advisor
 ## IconTexture: Interface\Icons\spell_enchanting_disenchant
 ## SavedVariables: DisenchantingAddonDB
 

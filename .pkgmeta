@@ -1,0 +1,7 @@
+package-as: DisenchantingAddon
+
+ignore:
+  - .github
+  - .gitignore
+  - .pkgmeta
+  - README.md

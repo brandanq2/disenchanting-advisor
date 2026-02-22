@@ -6,7 +6,7 @@
 --
 -- Minimum samples before observed rates show in tooltip.
 -- Exposed on DA so the stats frame can show progress toward the threshold.
-local MIN_SAMPLES = 5
+local MIN_SAMPLES = 10
 DisenchantingAddon = DisenchantingAddon or {}
 DisenchantingAddon.MIN_SAMPLES = MIN_SAMPLES
 local DA = DisenchantingAddon
