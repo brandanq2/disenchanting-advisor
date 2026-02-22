@@ -1,0 +1,9 @@
+# Claude Code session data
+.claude/
+
+# WoW backup files
+*.bak
+
+# OS junk
+.DS_Store
+Thumbs.db
