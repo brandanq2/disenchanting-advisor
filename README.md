@@ -1,5 +1,7 @@
 # Disenchanting Advisor
 
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/voked)
+
 A World of Warcraft: Midnight beta addon that extends item tooltips with expected disenchanting materials and their Auction House values.
 
 ## Features
