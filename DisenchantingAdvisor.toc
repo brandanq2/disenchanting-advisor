@@ -6,11 +6,11 @@
 ## X-Curse-Project-ID: 1469482
 ## X-Website: https://github.com/brandanq2/disenchanting-advisor
 ## IconTexture: Interface\Icons\spell_enchanting_disenchant
-## SavedVariables: DisenchantingAddonDB
+## SavedVariables: DisenchantingAdvisorDB
 
 Data\DisenchantData.lua
 Data\Prices.lua
 Data\Tracking.lua
 UI\DebugFrame.lua
 UI\StatsFrame.lua
-DisenchantingAddon.lua
+DisenchantingAdvisor.lua

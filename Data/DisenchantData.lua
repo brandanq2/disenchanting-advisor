@@ -9,8 +9,8 @@
 --   LE_EXPANSION_WAR_WITHIN = 10
 --   LE_EXPANSION_MIDNIGHT   = 11
 
-DisenchantingAddon = DisenchantingAddon or {}
-local DA = DisenchantingAddon
+DisenchantingAdvisor = DisenchantingAdvisor or {}
+local DA = DisenchantingAdvisor
 
 -- Safe references to expansion ID globals (fallback to literals if not defined)
 local EXP_TWW      = (LE_EXPANSION_WAR_WITHIN ~= nil) and LE_EXPANSION_WAR_WITHIN or 10

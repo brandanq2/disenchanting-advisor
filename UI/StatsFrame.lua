@@ -2,8 +2,8 @@
 -- Movable window showing cached disenchanting tracking data.
 -- Open/close with /dea stats.
 
-DisenchantingAddon = DisenchantingAddon or {}
-local DA = DisenchantingAddon
+DisenchantingAdvisor = DisenchantingAdvisor or {}
+local DA = DisenchantingAdvisor
 
 local FRAME_W    = 460
 local FRAME_H    = 500
@@ -129,7 +129,7 @@ local function RefreshStats()
         end
 
         Scan(DA.charDb and DA.charDb.tracking)
-        Scan(DisenchantingAddonCommunityData and DisenchantingAddonCommunityData.rates)
+        Scan(DisenchantingAdvisorCommunityData and DisenchantingAdvisorCommunityData.rates)
 
         table.sort(tiers, function(a, b)
             if a == "unknown" then return false end
@@ -169,8 +169,8 @@ local function RefreshStats()
         if bucket and bucket.attempts > 0 then
             return "personal", BuildRows(bucket), bucket.attempts, bucket.attempts < minSamples
         end
-        if DisenchantingAddonCommunityData and DisenchantingAddonCommunityData.rates then
-            local cb = DisenchantingAddonCommunityData.rates[key]
+        if DisenchantingAdvisorCommunityData and DisenchantingAdvisorCommunityData.rates then
+            local cb = DisenchantingAdvisorCommunityData.rates[key]
             if cb and cb.attempts >= minSamples then
                 return "community", BuildRows(cb), cb.attempts, false
             end
@@ -346,7 +346,7 @@ end
 -- Build the frame (called once on first open)
 -- ---------------------------------------------------------------------------
 local function CreateStatsFrame()
-    local f = CreateFrame("Frame", "DisenchantingAddonStatsFrame", UIParent,
+    local f = CreateFrame("Frame", "DisenchantingAdvisorStatsFrame", UIParent,
         "BasicFrameTemplateWithInset")
     f:SetSize(FRAME_W, FRAME_H)
     f:SetPoint("CENTER")
@@ -361,7 +361,7 @@ local function CreateStatsFrame()
     f.TitleText:SetText("Disenchanting Advisor — Stats")
 
     -- Scroll frame (inset accounts for frame border + scrollbar)
-    local sf = CreateFrame("ScrollFrame", "DisenchantingAddonStatsScroll", f,
+    local sf = CreateFrame("ScrollFrame", "DisenchantingAdvisorStatsScroll", f,
         "UIPanelScrollFrameTemplate")
     sf:SetPoint("TOPLEFT",     f, "TOPLEFT",      8, -28)
     sf:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -28,   8)

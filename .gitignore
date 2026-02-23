@@ -1,6 +1,9 @@
 # Claude Code session data
 .claude/
 
+# Local notes
+RELEASE_NOTES.md
+
 # WoW backup files
 *.bak
 

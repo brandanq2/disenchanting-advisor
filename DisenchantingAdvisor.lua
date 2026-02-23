@@ -1,13 +1,13 @@
--- DisenchantingAddon.lua
+-- DisenchantingAdvisor.lua
 -- Core logic: initialization, tooltip hook, display formatting, slash commands.
 
-DisenchantingAddon = DisenchantingAddon or {}
-local DA = DisenchantingAddon
+DisenchantingAdvisor = DisenchantingAdvisor or {}
+local DA = DisenchantingAdvisor
 
 -- ---------------------------------------------------------------------------
 -- Constants
 -- ---------------------------------------------------------------------------
-local ADDON_NAME  = "DisenchantingAddon"
+local ADDON_NAME  = "DisenchantingAdvisor"
 local COLOR_TITLE = "|cFF00FFFF"   -- cyan
 local COLOR_GOLD  = "|cFFFFD700"   -- gold
 local COLOR_WARN  = "|cFFFF8C00"   -- orange
@@ -23,10 +23,10 @@ local QUALITY_EPIC     = 4
 -- SavedVariables / DB
 -- ---------------------------------------------------------------------------
 local function InitDB()
-    if not DisenchantingAddonDB then
-        DisenchantingAddonDB = {}
+    if not DisenchantingAdvisorDB then
+        DisenchantingAdvisorDB = {}
     end
-    local db = DisenchantingAddonDB
+    local db = DisenchantingAdvisorDB
 
     -- Global (shared across all characters on this account).
     if not db.prices   then db.prices   = {} end

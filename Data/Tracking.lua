@@ -7,11 +7,11 @@
 -- Minimum samples before observed rates show in tooltip.
 -- Exposed on DA so the stats frame can show progress toward the threshold.
 local MIN_SAMPLES = 10
-DisenchantingAddon = DisenchantingAddon or {}
-DisenchantingAddon.MIN_SAMPLES = MIN_SAMPLES
-local DA = DisenchantingAddon
+DisenchantingAdvisor = DisenchantingAdvisor or {}
+DisenchantingAdvisor.MIN_SAMPLES = MIN_SAMPLES
+local DA = DisenchantingAdvisor
 
--- Set of equip locations that are disenchantable (mirrors DisenchantingAddon.lua)
+-- Set of equip locations that are disenchantable (mirrors DisenchantingAdvisor.lua)
 local EQUIPPABLE = {
     INVTYPE_HEAD=true, INVTYPE_NECK=true, INVTYPE_SHOULDER=true,
     INVTYPE_BODY=true, INVTYPE_CHEST=true, INVTYPE_WAIST=true,
@@ -561,7 +561,7 @@ end
 --
 -- Priority:
 --   1. Personal observed data (DA.db.tracking)
---   2. Community data from companion addon (DisenchantingAddonCommunityData)
+--   2. Community data from companion addon (DisenchantingAdvisorCommunityData)
 -- ---------------------------------------------------------------------------
 local function BucketToRates(bucket)
     local rates = {}
@@ -598,8 +598,8 @@ function DA:GetTrackedRates(quality, expansionID)
     end
 
     -- 2. Community data from companion addon
-    if DisenchantingAddonCommunityData and DisenchantingAddonCommunityData.rates then
-        local bucket = DisenchantingAddonCommunityData.rates[key]
+    if DisenchantingAdvisorCommunityData and DisenchantingAdvisorCommunityData.rates then
+        local bucket = DisenchantingAdvisorCommunityData.rates[key]
         if bucket and bucket.attempts >= MIN_SAMPLES then
             return BucketToRates(bucket), bucket.attempts, "community"
         end
@@ -905,7 +905,7 @@ function DA:ToggleTrackDebug()
 end
 
 -- ---------------------------------------------------------------------------
--- Event registration (called once from DisenchantingAddon.lua on ADDON_LOADED)
+-- Event registration (called once from DisenchantingAdvisor.lua on ADDON_LOADED)
 -- ---------------------------------------------------------------------------
 function DA:RegisterTrackingEvents(frame)
     frame:RegisterEvent("BAG_UPDATE_DELAYED")

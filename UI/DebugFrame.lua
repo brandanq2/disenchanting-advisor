@@ -3,8 +3,8 @@
 -- Use DA:DebugOutput(line) to append a line and show the frame.
 -- Text can be highlighted and Ctrl+C copied like a normal text box.
 
-DisenchantingAddon = DisenchantingAddon or {}
-local DA = DisenchantingAddon
+DisenchantingAdvisor = DisenchantingAdvisor or {}
+local DA = DisenchantingAdvisor
 
 local FRAME_W  = 660
 local FRAME_H  = 460
@@ -13,7 +13,7 @@ local LINE_H   = 15   -- approximate px per line for height calculation
 local debugFrame = nil
 
 local function CreateDebugFrame()
-    local f = CreateFrame("Frame", "DisenchantingAddonDebugFrame", UIParent,
+    local f = CreateFrame("Frame", "DisenchantingAdvisorDebugFrame", UIParent,
         "BasicFrameTemplateWithInset")
     f:SetSize(FRAME_W, FRAME_H)
     f:SetPoint("CENTER")
@@ -48,7 +48,7 @@ local function CreateDebugFrame()
     hint:SetText("|cFF888888Select All → Ctrl+C to copy|r")
 
     -- Scroll frame — starts below the title bar + clear button row
-    local sf = CreateFrame("ScrollFrame", "DisenchantingAddonDebugScroll", f,
+    local sf = CreateFrame("ScrollFrame", "DisenchantingAdvisorDebugScroll", f,
         "UIPanelScrollFrameTemplate")
     sf:SetPoint("TOPLEFT",     f, "TOPLEFT",       8, -54)
     sf:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT",  -28,   8)

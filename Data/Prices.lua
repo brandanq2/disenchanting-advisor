@@ -6,10 +6,10 @@
 --   2. Cached AH scan       — prices saved by a previous /dea scan at the Auction House.
 --
 -- AH scanning uses C_AuctionHouse.SendBrowseQuery (the same path as the AH UI itself).
--- Results are stored in DisenchantingAddonDB.prices[itemID] = { price, timestamp }.
+-- Results are stored in DisenchantingAdvisorDB.prices[itemID] = { price, timestamp }.
 
-DisenchantingAddon = DisenchantingAddon or {}
-local DA = DisenchantingAddon
+DisenchantingAdvisor = DisenchantingAdvisor or {}
+local DA = DisenchantingAdvisor
 
 -- How long (seconds) before a cached price is considered stale and shown with a warning.
 local CACHE_STALE_AGE = 60 * 60 * 24 * 2  -- 2 days
