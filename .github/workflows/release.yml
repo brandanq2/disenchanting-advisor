@@ -80,7 +80,7 @@ jobs:
 
           HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             -H "X-Api-Token: $CF_API_KEY" \
-            -F "metadata=</tmp/cf_metadata.json;type=application/json" \
+            --form-string "metadata=$(cat /tmp/cf_metadata.json)" \
             -F "file=@DisenchantingAdvisor-${{ steps.toc.outputs.version }}.zip" \
             "https://wow.curseforge.com/api/projects/1469482/upload-file")
 
