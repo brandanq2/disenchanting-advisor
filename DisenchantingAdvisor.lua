@@ -19,6 +19,13 @@ local QUALITY_UNCOMMON = 2
 local QUALITY_RARE     = 3
 local QUALITY_EPIC     = 4
 
+-- Reagent quality tier labels (r1/r2/r3).
+local QUALITY_ICONS = {
+    [1] = "|cFFC0C0C0r1|r",   -- silver
+    [2] = "|cFFFFD700r2|r",   -- gold
+    [3] = "|cFF0070DDr3|r",   -- blue
+}
+
 -- ---------------------------------------------------------------------------
 -- SavedVariables / DB
 -- ---------------------------------------------------------------------------
@@ -280,13 +287,6 @@ local function BuildDisenchantLines(tooltip, data)
     local allHavePrices = true
     local anyStale      = false
 
-    -- Quality tier labels (r1/r2/r3 — placeholder until Midnight atlas names are confirmed).
-    local QUALITY_ICONS = {
-        [1] = "|cFFC0C0C0r1|r",
-        [2] = "|cFFFFD700r2|r",
-        [3] = "|cFF0070DDr3|r",
-    }
-
     for _, entry in ipairs(matList) do
         local itemID = entry.itemID
         local avgQty = entry.avgQty
@@ -504,17 +504,41 @@ SlashCmdList["DISENCHANTADDON"] = function(msg)
         DA:ClearTrackingData()
 
     elseif cmd == "prices" then
-        -- Dump price lookup results for every known mat.
+        -- Dump price lookup results for every known mat, grouped by expansion
+        -- and sorted alphabetically with r1→r2→r3 within each reagent.
         print(COLOR_TITLE .. "Disenchanting Advisor — price diagnostics:" .. COLOR_RESET)
         print("  TSM_API present: " .. tostring(TSM_API ~= nil))
+
+        -- Collect entries; derive expansion from key prefix.
+        local entries = {}
         for key, mat in pairs(DA.MATS) do
             if mat.id and mat.id > 0 then
-                local name = (C_Item.GetItemNameByID and C_Item.GetItemNameByID(mat.id))
-                          or mat.name or ("Item #" .. mat.id)
-                local price, source = DA:GetItemPrice(mat.id)
-                local priceStr = price and DA:FormatGold(price) or (COLOR_ERR .. "nil" .. COLOR_RESET)
-                print(string.format("  [%d] %s → %s (src=%s)", mat.id, name, priceStr, tostring(source)))
+                local expID = (key:sub(1, 4) == "TWW_") and DA.EXP_TWW or DA.EXP_MIDNIGHT
+                local name  = (C_Item.GetItemNameByID and C_Item.GetItemNameByID(mat.id))
+                           or mat.name or ("Item #" .. mat.id)
+                entries[#entries + 1] = { mat = mat, expID = expID, name = name }
             end
+        end
+
+        -- Sort: TWW first, then alphabetically by name, then r1→r2→r3.
+        table.sort(entries, function(a, b)
+            if a.expID ~= b.expID then return a.expID < b.expID end
+            if a.name  ~= b.name  then return a.name  < b.name  end
+            return (a.mat.qualityTier or 0) < (b.mat.qualityTier or 0)
+        end)
+
+        local lastExpID = nil
+        for _, e in ipairs(entries) do
+            if e.expID ~= lastExpID then
+                local label = (e.expID == DA.EXP_TWW) and "The War Within" or "Midnight"
+                print(COLOR_TITLE .. "  — " .. label .. " —" .. COLOR_RESET)
+                lastExpID = e.expID
+            end
+            local icon     = (e.mat.qualityTier and QUALITY_ICONS[e.mat.qualityTier] and
+                               QUALITY_ICONS[e.mat.qualityTier] .. " ") or ""
+            local price, source = DA:GetItemPrice(e.mat.id)
+            local priceStr = price and DA:FormatGold(price) or (COLOR_ERR .. "nil" .. COLOR_RESET)
+            print(string.format("  [%d] %s%s → %s (src=%s)", e.mat.id, icon, e.name, priceStr, tostring(source)))
         end
 
     elseif cmd == "tooltipdebug" then

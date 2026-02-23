@@ -1,4 +1,4 @@
-name: Release
+name: Release to CurseForge
 
 on:
   push:
@@ -14,7 +14,75 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Package and upload
-        uses: BigWigsMods/packager@v2
+      - name: Read TOC metadata
+        id: toc
+        run: |
+          VERSION=$(grep "^## Version:" DisenchantingAdvisor.toc | awk '{print $3}')
+          INTERFACE=$(grep "^## Interface:" DisenchantingAdvisor.toc | awk '{print $3}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "interface=$INTERFACE" >> $GITHUB_OUTPUT
+
+      - name: Package addon
+        run: |
+          mkdir -p pkg/DisenchantingAdvisor
+          cp -r Data UI DisenchantingAdvisor.lua DisenchantingAdvisor.toc pkg/DisenchantingAdvisor/
+          cd pkg && zip -r "../DisenchantingAdvisor-${{ steps.toc.outputs.version }}.zip" DisenchantingAdvisor/
+          echo "Created DisenchantingAdvisor-${{ steps.toc.outputs.version }}.zip"
+
+      - name: Resolve CurseForge game version ID
+        id: cf_game_version
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
+        run: |
+          INTERFACE="${{ steps.toc.outputs.interface }}"
+          # Convert 6-digit interface number to version string (e.g. 110002 -> 11.0.2)
+          MAJOR=$((10#${INTERFACE:0:2}))
+          MINOR=$((10#${INTERFACE:2:2}))
+          PATCH=$((10#${INTERFACE:4:2}))
+          VERSION_STR="${MAJOR}.${MINOR}.${PATCH}"
+          echo "Looking up CurseForge game version for: $VERSION_STR"
+
+          GAME_VERSIONS=$(curl -sf \
+            -H "X-Api-Token: $CF_API_KEY" \
+            "https://wow.curseforge.com/api/game/versions")
+
+          VERSION_ID=$(echo "$GAME_VERSIONS" | \
+            jq --arg v "$VERSION_STR" '[.[] | select(.name | startswith($v))] | first | .id')
+
+          if [ -z "$VERSION_ID" ] || [ "$VERSION_ID" = "null" ]; then
+            echo "ERROR: Could not resolve CurseForge game version ID for $VERSION_STR"
+            exit 1
+          fi
+
+          echo "Resolved game version ID: $VERSION_ID"
+          echo "version_id=$VERSION_ID" >> $GITHUB_OUTPUT
+
+      - name: Upload to CurseForge
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+        run: |
+          CHANGELOG=$(git tag -l --format='%(contents)' "${{ github.ref_name }}" | head -20)
+          if [ -z "$CHANGELOG" ]; then
+            CHANGELOG="Version ${{ steps.toc.outputs.version }}"
+          fi
+
+          METADATA=$(jq -n \
+            --argjson gameVersions "[${{ steps.cf_game_version.outputs.version_id }}]" \
+            --arg displayName "DisenchantingAdvisor v${{ steps.toc.outputs.version }}" \
+            --arg changelog "$CHANGELOG" \
+            '{
+              gameVersions: $gameVersions,
+              releaseType: "release",
+              displayName: $displayName,
+              changelog: $changelog,
+              changelogType: "text"
+            }')
+
+          echo "Uploading to CurseForge project 1469482..."
+          RESPONSE=$(curl -sf -X POST \
+            -H "X-Api-Token: $CF_API_KEY" \
+            -F "metadata=$METADATA;type=application/json" \
+            -F "file=@DisenchantingAdvisor-${{ steps.toc.outputs.version }}.zip" \
+            "https://wow.curseforge.com/api/projects/1469482/upload-file")
+
+          echo "Upload successful. File ID: $(echo "$RESPONSE" | jq '.id')"
