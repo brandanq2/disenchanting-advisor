@@ -78,11 +78,24 @@ jobs:
               changelogType: "text"
             }')
 
+          echo "Metadata: $METADATA"
           echo "Uploading to CurseForge project 1469482..."
-          RESPONSE=$(curl -sf -X POST \
+
+          HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             -H "X-Api-Token: $CF_API_KEY" \
             -F "metadata=$METADATA;type=application/json" \
             -F "file=@DisenchantingAdvisor-${{ steps.toc.outputs.version }}.zip" \
             "https://wow.curseforge.com/api/projects/1469482/upload-file")
 
-          echo "Upload successful. File ID: $(echo "$RESPONSE" | jq '.id')"
+          HTTP_CODE=$(echo "$HTTP_RESPONSE" | tail -1)
+          BODY=$(echo "$HTTP_RESPONSE" | head -n -1)
+
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "ERROR: Upload failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "Upload successful. File ID: $(echo "$BODY" | jq '.id')"
