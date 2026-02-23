@@ -3,7 +3,8 @@
 --
 -- Priority order:
 --   1. TradeSkillMaster (TSM) — if installed and running, provides live/market prices.
---   2. Cached AH scan       — prices saved by a previous /dea scan at the Auction House.
+--   2. Auctionator            — if installed, provides prices from the user's last scan.
+--   3. Cached AH scan         — prices saved by a previous /dea scan at the Auction House.
 --
 -- AH scanning uses C_AuctionHouse.SendBrowseQuery (the same path as the AH UI itself).
 -- Results are stored in DisenchantingAdvisorDB.prices[itemID] = { price, timestamp }.
@@ -28,7 +29,15 @@ function DA:GetItemPrice(itemID)
         end
     end
 
-    -- 2. Locally cached scan price
+    -- 2. Auctionator
+    if Auctionator and Auctionator.API and Auctionator.API.v1 then
+        local price = Auctionator.API.v1.GetAuctionPriceByItemID("DisenchantingAdvisor", itemID)
+        if price and price > 0 then
+            return price, "auctionator"
+        end
+    end
+
+    -- 3. Locally cached scan price
     if DA.db and DA.db.prices and DA.db.prices[itemID] then
         local entry = DA.db.prices[itemID]
         if entry.price and entry.price > 0 then

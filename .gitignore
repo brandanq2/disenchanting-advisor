@@ -4,6 +4,10 @@
 # Local notes
 RELEASE_NOTES.md
 
+# Local deployment scripts
+deploy.sh
+deploy.ps1
+
 # WoW backup files
 *.bak
 
