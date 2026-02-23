@@ -7,7 +7,7 @@ import sys
 
 import requests
 
-api_key         = os.environ["CF_API_KEY"]
+api_key         = os.environ["CF_API_KEY"].strip()
 version         = os.environ["VERSION"]
 game_version_id = int(os.environ["GAME_VERSION_ID"])
 changelog       = os.environ.get("CHANGELOG_TEXT", f"Version {version}")
