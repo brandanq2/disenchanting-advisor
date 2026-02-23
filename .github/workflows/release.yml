@@ -66,24 +66,21 @@ jobs:
             CHANGELOG="Version ${{ steps.toc.outputs.version }}"
           fi
 
-          METADATA=$(jq -n \
+          # Use -c (compact) to produce a single-line JSON, then write to a temp file
+          # so curl reads it cleanly via < without shell quoting issues
+          jq -cn \
             --argjson gameVersions "[${{ steps.cf_game_version.outputs.version_id }}]" \
             --arg displayName "DisenchantingAdvisor v${{ steps.toc.outputs.version }}" \
             --arg changelog "$CHANGELOG" \
-            '{
-              gameVersions: $gameVersions,
-              releaseType: "release",
-              displayName: $displayName,
-              changelog: $changelog,
-              changelogType: "text"
-            }')
+            '{gameVersions: $gameVersions, releaseType: "release", displayName: $displayName, changelog: $changelog, changelogType: "text"}' \
+            > /tmp/cf_metadata.json
 
-          echo "Metadata: $METADATA"
+          echo "Metadata: $(cat /tmp/cf_metadata.json)"
           echo "Uploading to CurseForge project 1469482..."
 
           HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             -H "X-Api-Token: $CF_API_KEY" \
-            -F "metadata=$METADATA;type=application/json" \
+            -F "metadata=</tmp/cf_metadata.json;type=application/json" \
             -F "file=@DisenchantingAdvisor-${{ steps.toc.outputs.version }}.zip" \
             "https://wow.curseforge.com/api/projects/1469482/upload-file")
 
