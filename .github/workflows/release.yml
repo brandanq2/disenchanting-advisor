@@ -60,39 +60,10 @@ jobs:
       - name: Upload to CurseForge
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          VERSION: ${{ steps.toc.outputs.version }}
+          GAME_VERSION_ID: ${{ steps.cf_game_version.outputs.version_id }}
         run: |
           CHANGELOG=$(git tag -l --format='%(contents)' "${{ github.ref_name }}" | head -20)
-          if [ -z "$CHANGELOG" ]; then
-            CHANGELOG="Version ${{ steps.toc.outputs.version }}"
-          fi
-
-          # Use -c (compact) to produce a single-line JSON, then write to a temp file
-          # so curl reads it cleanly via < without shell quoting issues
-          jq -cn \
-            --argjson gameVersions "[${{ steps.cf_game_version.outputs.version_id }}]" \
-            --arg displayName "DisenchantingAdvisor v${{ steps.toc.outputs.version }}" \
-            --arg changelog "$CHANGELOG" \
-            '{gameVersions: $gameVersions, releaseType: "release", displayName: $displayName, changelog: $changelog, changelogType: "text"}' \
-            > /tmp/cf_metadata.json
-
-          echo "Metadata: $(cat /tmp/cf_metadata.json)"
-          echo "Uploading to CurseForge project 1469482..."
-
-          HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
-            -H "X-Api-Token: $CF_API_KEY" \
-            --form-string "metadata=$(cat /tmp/cf_metadata.json)" \
-            -F "file=@DisenchantingAdvisor-${{ steps.toc.outputs.version }}.zip" \
-            "https://wow.curseforge.com/api/projects/1469482/upload-file")
-
-          HTTP_CODE=$(echo "$HTTP_RESPONSE" | tail -1)
-          BODY=$(echo "$HTTP_RESPONSE" | head -n -1)
-
-          echo "HTTP Status: $HTTP_CODE"
-          echo "Response: $BODY"
-
-          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
-            echo "ERROR: Upload failed with HTTP $HTTP_CODE"
-            exit 1
-          fi
-
-          echo "Upload successful. File ID: $(echo "$BODY" | jq '.id')"
+          [ -z "$CHANGELOG" ] && CHANGELOG="Version $VERSION"
+          export CHANGELOG_TEXT="$CHANGELOG"
+          python3 scripts/upload_curseforge.py
